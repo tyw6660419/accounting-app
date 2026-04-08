@@ -15,13 +15,50 @@ struct StatisticsView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // 月份切换
-                Picker("周期", selection: $vm.monthOffset) {
-                    Text("本月").tag(0)
-                    Text("上月").tag(-1)
+                // 粒度选择
+                Picker("粒度", selection: $vm.granularity) {
+                    ForEach(StatisticsViewModel.Granularity.allCases, id: \.self) { g in
+                        Text(g.rawValue).tag(g)
+                    }
                 }
                 .pickerStyle(.segmented)
-                .padding()
+                .padding(.horizontal)
+                .padding(.top, 12)
+
+                // 日期导航
+                HStack {
+                    Button {
+                        vm.stepBack()
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundStyle(.primary)
+                            .frame(width: 36, height: 36)
+                    }
+
+                    Spacer()
+
+                    Text(vm.periodLabel)
+                        .font(.subheadline.weight(.semibold))
+                        .contentTransition(.numericText())
+                        .animation(.snappy, value: vm.periodLabel)
+
+                    Spacer()
+
+                    Button {
+                        vm.stepForward()
+                    } label: {
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundStyle(vm.isFuture ? Color(.systemGray4) : .primary)
+                            .frame(width: 36, height: 36)
+                    }
+                    .disabled(vm.isFuture)
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 6)
+
+                Divider()
 
                 if records.isEmpty {
                     Spacer()

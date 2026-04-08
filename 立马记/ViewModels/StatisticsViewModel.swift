@@ -88,7 +88,7 @@ class StatisticsViewModel {
             let end = cal.date(byAdding: .day, value: 1, to: start)!
             return (start, end)
         case .month:
-            var comps = cal.dateComponents([.year, .month], from: selectedDate)
+            let comps = cal.dateComponents([.year, .month], from: selectedDate)
             let start = cal.date(from: comps)!
             let end = cal.date(byAdding: .month, value: 1, to: start)!
             return (start, end)

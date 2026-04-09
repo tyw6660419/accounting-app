@@ -6,6 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		D4B7561A2F87E94000DB8244 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D4B756192F87E94000DB8244 /* WidgetKit.framework */; };
+		D4B7561C2F87E94000DB8244 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D4B7561B2F87E94000DB8244 /* SwiftUI.framework */; };
+		D4B7562B2F87E94100DB8244 /* LiMaJiWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D4B756172F87E94000DB8244 /* LiMaJiWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		D49616C72F86376C0076F614 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -21,17 +27,62 @@
 			remoteGlobalIDString = D49616B62F86376A0076F614;
 			remoteInfo = "立马记";
 		};
+		D4B756292F87E94100DB8244 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D49616AF2F86376A0076F614 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D4B756162F87E94000DB8244;
+			remoteInfo = LiMaJiWidgetExtension;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		D4B7562C2F87E94100DB8244 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				D4B7562B2F87E94100DB8244 /* LiMaJiWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		D49616B72F86376A0076F614 /* 立马记.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "立马记.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D49616C62F86376C0076F614 /* 立马记Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "立马记Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D49616D02F86376C0076F614 /* 立马记UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "立马记UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D4B756172F87E94000DB8244 /* LiMaJiWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LiMaJiWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		D4B756192F87E94000DB8244 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		D4B7561B2F87E94000DB8244 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		D4B756322F87E9F200DB8244 /* LiMaJiWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LiMaJiWidgetExtension.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		D4B7562F2F87E94100DB8244 /* Exceptions for "LiMaJiWidget" folder in "LiMaJiWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = D4B756162F87E94000DB8244 /* LiMaJiWidgetExtension */;
+		};
+		D4B756342F87ED6B00DB8244 /* Exceptions for "立马记" folder in "LiMaJiWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Utils/WidgetDataStore.swift,
+			);
+			target = D4B756162F87E94000DB8244 /* LiMaJiWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D49616B92F86376A0076F614 /* 立马记 */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D4B756342F87ED6B00DB8244 /* Exceptions for "立马记" folder in "LiMaJiWidgetExtension" target */,
+			);
 			path = "立马记";
 			sourceTree = "<group>";
 		};
@@ -43,6 +94,14 @@
 		D49616D32F86376C0076F614 /* 立马记UITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "立马记UITests";
+			sourceTree = "<group>";
+		};
+		D4B7561D2F87E94000DB8244 /* LiMaJiWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D4B7562F2F87E94100DB8244 /* Exceptions for "LiMaJiWidget" folder in "LiMaJiWidgetExtension" target */,
+			);
+			path = LiMaJiWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -69,15 +128,27 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D4B756142F87E94000DB8244 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D4B7561C2F87E94000DB8244 /* SwiftUI.framework in Frameworks */,
+				D4B7561A2F87E94000DB8244 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		D49616AE2F86376A0076F614 = {
 			isa = PBXGroup;
 			children = (
+				D4B756322F87E9F200DB8244 /* LiMaJiWidgetExtension.entitlements */,
 				D49616B92F86376A0076F614 /* 立马记 */,
 				D49616C92F86376C0076F614 /* 立马记Tests */,
 				D49616D32F86376C0076F614 /* 立马记UITests */,
+				D4B7561D2F87E94000DB8244 /* LiMaJiWidget */,
+				D4B756182F87E94000DB8244 /* Frameworks */,
 				D49616B82F86376A0076F614 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -88,8 +159,18 @@
 				D49616B72F86376A0076F614 /* 立马记.app */,
 				D49616C62F86376C0076F614 /* 立马记Tests.xctest */,
 				D49616D02F86376C0076F614 /* 立马记UITests.xctest */,
+				D4B756172F87E94000DB8244 /* LiMaJiWidgetExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		D4B756182F87E94000DB8244 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D4B756192F87E94000DB8244 /* WidgetKit.framework */,
+				D4B7561B2F87E94000DB8244 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -102,10 +183,12 @@
 				D49616B32F86376A0076F614 /* Sources */,
 				D49616B42F86376A0076F614 /* Frameworks */,
 				D49616B52F86376A0076F614 /* Resources */,
+				D4B7562C2F87E94100DB8244 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				D4B7562A2F87E94100DB8244 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				D49616B92F86376A0076F614 /* 立马记 */,
@@ -163,6 +246,28 @@
 			productReference = D49616D02F86376C0076F614 /* 立马记UITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		D4B756162F87E94000DB8244 /* LiMaJiWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D4B756302F87E94100DB8244 /* Build configuration list for PBXNativeTarget "LiMaJiWidgetExtension" */;
+			buildPhases = (
+				D4B756132F87E94000DB8244 /* Sources */,
+				D4B756142F87E94000DB8244 /* Frameworks */,
+				D4B756152F87E94000DB8244 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				D4B7561D2F87E94000DB8244 /* LiMaJiWidget */,
+			);
+			name = LiMaJiWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = LiMaJiWidgetExtension;
+			productReference = D4B756172F87E94000DB8244 /* LiMaJiWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -184,6 +289,9 @@
 						CreatedOnToolsVersion = 16.4;
 						TestTargetID = D49616B62F86376A0076F614;
 					};
+					D4B756162F87E94000DB8244 = {
+						CreatedOnToolsVersion = 16.4;
+					};
 				};
 			};
 			buildConfigurationList = D49616B22F86376A0076F614 /* Build configuration list for PBXProject "立马记" */;
@@ -203,6 +311,7 @@
 				D49616B62F86376A0076F614 /* 立马记 */,
 				D49616C52F86376C0076F614 /* 立马记Tests */,
 				D49616CF2F86376C0076F614 /* 立马记UITests */,
+				D4B756162F87E94000DB8244 /* LiMaJiWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -223,6 +332,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		D49616CE2F86376C0076F614 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D4B756152F87E94000DB8244 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -253,6 +369,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D4B756132F87E94000DB8244 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -265,6 +388,11 @@
 			isa = PBXTargetDependency;
 			target = D49616B62F86376A0076F614 /* 立马记 */;
 			targetProxy = D49616D12F86376C0076F614 /* PBXContainerItemProxy */;
+		};
+		D4B7562A2F87E94100DB8244 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D4B756162F87E94000DB8244 /* LiMaJiWidgetExtension */;
+			targetProxy = D4B756292F87E94100DB8244 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -393,6 +521,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "立马记/立马记.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = P3T572J4MW;
@@ -422,6 +551,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "立马记/立马记.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = P3T572J4MW;
@@ -514,6 +644,62 @@
 			};
 			name = Release;
 		};
+		D4B7562D2F87E94100DB8244 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = LiMaJiWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = P3T572J4MW;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LiMaJiWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = LiMaJiWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tanyawen.limaji.LiMaJiWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		D4B7562E2F87E94100DB8244 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = LiMaJiWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = P3T572J4MW;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LiMaJiWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = LiMaJiWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tanyawen.limaji.LiMaJiWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -549,6 +735,15 @@
 			buildConfigurations = (
 				D49616E12F86376C0076F614 /* Debug */,
 				D49616E22F86376C0076F614 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D4B756302F87E94100DB8244 /* Build configuration list for PBXNativeTarget "LiMaJiWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D4B7562D2F87E94100DB8244 /* Debug */,
+				D4B7562E2F87E94100DB8244 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

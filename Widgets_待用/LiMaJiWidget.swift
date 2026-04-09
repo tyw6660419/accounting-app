@@ -1,49 +1,47 @@
-// ⚠️ Widget 需要单独的 Widget Extension Target
-//
-// 在 Xcode 中操作步骤：
-// 1. File → New → Target → Widget Extension
-// 2. Product Name: LiMaJiWidget
-// 3. 勾选 "Include Configuration App Intent"
-// 4. 将此文件及 SmallWidgetView / MediumWidgetView 移入该 Target
-// 5. 在 App Group 中配置共享数据（参见 PRD 13.5 节）
-//
-// 以下为 Widget 完整实现，待 Target 创建后可直接使用
-
 import WidgetKit
 import SwiftUI
-import SwiftData
-import AppIntents
 
-// MARK: - Timeline Entry
+// MARK: - Entry
 
 struct LiMaJiEntry: TimelineEntry {
     let date: Date
     let todayTotal: Double
     let monthTotal: Double
-    let recentRecords: [(snapshot: String, amount: Double)]
+    let recentRecords: [WidgetSharedRecord]
 }
 
-// MARK: - Timeline Provider
+// MARK: - Provider
 
 struct LiMaJiProvider: TimelineProvider {
     func placeholder(in context: Context) -> LiMaJiEntry {
-        LiMaJiEntry(date: Date(), todayTotal: 0, monthTotal: 0, recentRecords: [])
+        LiMaJiEntry(date: Date(), todayTotal: 128.5, monthTotal: 2340, recentRecords: [
+            WidgetSharedRecord(snapshot: "餐饮", amount: 38),
+            WidgetSharedRecord(snapshot: "交通", amount: 15),
+        ])
     }
 
     func getSnapshot(in context: Context, completion: @escaping (LiMaJiEntry) -> Void) {
-        completion(placeholder(in: context))
+        completion(makeEntry())
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<LiMaJiEntry>) -> Void) {
-        // TODO: 通过 App Group 读取 SwiftData 数据
-        // 配置 App Group 后在此处初始化共享 ModelContainer 并查询
-        let entry = LiMaJiEntry(date: Date(), todayTotal: 0, monthTotal: 0, recentRecords: [])
-        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 15, to: Date())!
-        completion(Timeline(entries: [entry], policy: .after(nextUpdate)))
+        let entry = makeEntry()
+        let next = Calendar.current.date(byAdding: .minute, value: 15, to: Date())!
+        completion(Timeline(entries: [entry], policy: .after(next)))
+    }
+
+    private func makeEntry() -> LiMaJiEntry {
+        let data = WidgetDataStore.load()
+        return LiMaJiEntry(
+            date: Date(),
+            todayTotal: data.todayTotal,
+            monthTotal: data.monthTotal,
+            recentRecords: data.recent
+        )
     }
 }
 
-// MARK: - Small Widget (2×2)
+// MARK: - Small Widget（主屏幕 2×2）
 
 struct SmallWidgetView: View {
     let entry: LiMaJiEntry
@@ -55,7 +53,8 @@ struct SmallWidgetView: View {
                 .foregroundStyle(.secondary)
             Text("¥\(entry.todayTotal.amountDisplay)")
                 .font(.system(size: 22, weight: .bold, design: .rounded))
-                .minimumScaleFactor(0.7)
+                .minimumScaleFactor(0.6)
+                .lineLimit(1)
             Spacer()
             Link(destination: URL(string: "quickledger://add")!) {
                 Label("记一笔", systemImage: "plus.circle.fill")
@@ -68,7 +67,7 @@ struct SmallWidgetView: View {
     }
 }
 
-// MARK: - Medium Widget (4×2)
+// MARK: - Medium Widget（主屏幕 4×2）
 
 struct MediumWidgetView: View {
     let entry: LiMaJiEntry
@@ -82,9 +81,13 @@ struct MediumWidgetView: View {
                     .foregroundStyle(.secondary)
                 Text("¥\(entry.todayTotal.amountDisplay)")
                     .font(.system(size: 20, weight: .bold, design: .rounded))
+                    .minimumScaleFactor(0.6)
+                    .lineLimit(1)
                 Text("本月 ¥\(entry.monthTotal.amountDisplay)")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
+                    .minimumScaleFactor(0.6)
+                    .lineLimit(1)
                 Spacer()
                 Link(destination: URL(string: "quickledger://add")!) {
                     Text("记一笔")
@@ -103,22 +106,25 @@ struct MediumWidgetView: View {
 
             // 右：最近记录
             VStack(alignment: .leading, spacing: 6) {
-                ForEach(Array(entry.recentRecords.prefix(2).enumerated()), id: \.offset) { _, rec in
-                    HStack {
-                        Text(rec.snapshot)
-                            .font(.caption)
-                            .lineLimit(1)
-                        Spacer()
-                        Text("¥\(rec.amount.amountShort)")
-                            .font(.caption.weight(.medium))
-                    }
-                }
                 if entry.recentRecords.isEmpty {
+                    Spacer()
                     Text("暂无记录")
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                    Spacer()
+                } else {
+                    ForEach(Array(entry.recentRecords.prefix(3).enumerated()), id: \.offset) { _, rec in
+                        HStack {
+                            Text(rec.snapshot)
+                                .font(.caption)
+                                .lineLimit(1)
+                            Spacer()
+                            Text("¥\(rec.amount.amountShort)")
+                                .font(.caption.weight(.medium))
+                        }
+                    }
+                    Spacer()
                 }
-                Spacer()
             }
             .padding()
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
@@ -126,21 +132,48 @@ struct MediumWidgetView: View {
     }
 }
 
-// MARK: - Widget Configuration
+// MARK: - 锁屏圆形（accessoryCircular）
 
-struct LiMaJiWidget: Widget {
-    let kind: String = "LiMaJiWidget"
+struct CircularWidgetView: View {
+    let entry: LiMaJiEntry
 
-    var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: LiMaJiProvider()) { entry in
-            LiMaJiWidgetEntryView(entry: entry)
-                .containerBackground(.fill.tertiary, for: .widget)
+    var body: some View {
+        VStack(spacing: 1) {
+            Image(systemName: "yensign.circle.fill")
+                .font(.system(size: 12))
+            Text("¥\(entry.todayTotal.amountShort)")
+                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                .minimumScaleFactor(0.5)
+                .lineLimit(1)
         }
-        .configurationDisplayName("立马记")
-        .description("快速查看今日支出，一键记账")
-        .supportedFamilies([.systemSmall, .systemMedium, .accessoryCircular, .accessoryRectangular])
     }
 }
+
+// MARK: - 锁屏矩形（accessoryRectangular）
+
+struct RectangularWidgetView: View {
+    let entry: LiMaJiEntry
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text("立马记 · 今日")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+            Text("¥\(entry.todayTotal.amountDisplay)")
+                .font(.system(size: 16, weight: .bold, design: .rounded))
+                .minimumScaleFactor(0.6)
+                .lineLimit(1)
+            Text("本月 ¥\(entry.monthTotal.amountDisplay)")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .minimumScaleFactor(0.6)
+                .lineLimit(1)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+// MARK: - Entry View
 
 struct LiMaJiWidgetEntryView: View {
     @Environment(\.widgetFamily) var family
@@ -152,8 +185,33 @@ struct LiMaJiWidgetEntryView: View {
             SmallWidgetView(entry: entry)
         case .systemMedium:
             MediumWidgetView(entry: entry)
+        case .accessoryCircular:
+            CircularWidgetView(entry: entry)
+        case .accessoryRectangular:
+            RectangularWidgetView(entry: entry)
         default:
             SmallWidgetView(entry: entry)
         }
+    }
+}
+
+// MARK: - Widget
+
+struct LiMaJiWidget: Widget {
+    let kind: String = "LiMaJiWidget"
+
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: LiMaJiProvider()) { entry in
+            LiMaJiWidgetEntryView(entry: entry)
+                .containerBackground(.fill.tertiary, for: .widget)
+        }
+        .configurationDisplayName("立马记")
+        .description("快速查看今日支出，一键记账")
+        .supportedFamilies([
+            .systemSmall,
+            .systemMedium,
+            .accessoryCircular,
+            .accessoryRectangular,
+        ])
     }
 }

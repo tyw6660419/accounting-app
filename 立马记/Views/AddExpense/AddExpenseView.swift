@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import WidgetKit
 
 struct AddExpenseView: View {
     @Environment(\.dismiss) private var dismiss
@@ -7,6 +8,7 @@ struct AddExpenseView: View {
 
     @Query(sort: \Category.sortOrder) private var categories: [Category]
     @Query(sort: \ExpenseTemplate.sortOrder) private var templates: [ExpenseTemplate]
+    @Query(sort: \ExpenseRecord.dateTime, order: .reverse) private var allRecords: [ExpenseRecord]
 
     @State private var vm = AddExpenseViewModel()
     @State private var showSavedToast = false
@@ -155,6 +157,32 @@ struct AddExpenseView: View {
             .clipShape(Capsule())
     }
 
+    // MARK: - Widget 数据刷新
+
+    private func refreshWidgetData() {
+        let cal = Calendar.current
+        let now = Date()
+        let todayStart = cal.startOfDay(for: now)
+        let monthStart: Date = {
+            var c = cal.dateComponents([.year, .month], from: now)
+            return cal.date(from: c)!
+        }()
+
+        let todayTotal = allRecords
+            .filter { $0.dateTime >= todayStart }
+            .reduce(0.0) { $0 + $1.amount }
+
+        let monthTotal = allRecords
+            .filter { $0.dateTime >= monthStart }
+            .reduce(0.0) { $0 + $1.amount }
+
+        let recent = Array(allRecords.prefix(3)).map {
+            WidgetSharedRecord(snapshot: $0.categorySnapshot, amount: $0.amount)
+        }
+
+        WidgetDataStore.save(todayTotal: todayTotal, monthTotal: monthTotal, recent: recent)
+    }
+
     // MARK: - Actions
 
     private func saveExpense() {
@@ -170,6 +198,9 @@ struct AddExpenseView: View {
         )
         modelContext.insert(record)
         try? modelContext.save()
+
+        refreshWidgetData()
+        WidgetCenter.shared.reloadAllTimelines()
 
         showSavedToast = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {

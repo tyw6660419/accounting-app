@@ -12,7 +12,5 @@ import SwiftUI
 struct LiMaJiWidgetBundle: WidgetBundle {
     var body: some Widget {
         LiMaJiWidget()
-        LiMaJiWidgetControl()
-        LiMaJiWidgetLiveActivity()
     }
 }

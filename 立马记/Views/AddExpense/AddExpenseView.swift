@@ -164,23 +164,29 @@ struct AddExpenseView: View {
         let now = Date()
         let todayStart = cal.startOfDay(for: now)
         let monthStart: Date = {
-            var c = cal.dateComponents([.year, .month], from: now)
+            let c = cal.dateComponents([.year, .month], from: now)
             return cal.date(from: c)!
         }()
 
-        let todayTotal = allRecords
-            .filter { $0.dateTime >= todayStart }
-            .reduce(0.0) { $0 + $1.amount }
+        let timeFmt = DateFormatter()
+        timeFmt.dateFormat = "HH:mm"
 
+        let todayRecordsRaw = allRecords.filter { $0.dateTime >= todayStart }
+
+        let todayTotal = todayRecordsRaw.reduce(0.0) { $0 + $1.amount }
         let monthTotal = allRecords
             .filter { $0.dateTime >= monthStart }
             .reduce(0.0) { $0 + $1.amount }
 
-        let recent = Array(allRecords.prefix(3)).map {
-            WidgetSharedRecord(snapshot: $0.categorySnapshot, amount: $0.amount)
+        let todayRecords = Array(todayRecordsRaw.prefix(10)).map {
+            WidgetSharedRecord(
+                snapshot: $0.categorySnapshot,
+                amount: $0.amount,
+                time: timeFmt.string(from: $0.dateTime)
+            )
         }
 
-        WidgetDataStore.save(todayTotal: todayTotal, monthTotal: monthTotal, recent: recent)
+        WidgetDataStore.save(todayTotal: todayTotal, monthTotal: monthTotal, todayRecords: todayRecords)
     }
 
     // MARK: - Actions

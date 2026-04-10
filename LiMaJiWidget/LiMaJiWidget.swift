@@ -2,83 +2,335 @@
 //  LiMaJiWidget.swift
 //  LiMaJiWidget
 //
-//  Created by 8 99 on 2026/4/9.
-//
 
 import WidgetKit
 import SwiftUI
 
-struct Provider: TimelineProvider {
-    func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), emoji: "😀")
+// MARK: - 金额格式化
+
+private extension Double {
+    var amountDisplay: String { String(format: "%.2f", self) }
+    var amountShort: String {
+        let s = String(format: "%.2f", self)
+        if s.hasSuffix(".00") { return String(format: "%.0f", self) }
+        if s.hasSuffix("0")   { return String(format: "%.1f", self) }
+        return s
     }
-
-    func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
-        let entry = SimpleEntry(date: Date(), emoji: "😀")
-        completion(entry)
-    }
-
-    func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-        var entries: [SimpleEntry] = []
-
-        // Generate a timeline consisting of five entries an hour apart, starting from the current date.
-        let currentDate = Date()
-        for hourOffset in 0 ..< 5 {
-            let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
-            let entry = SimpleEntry(date: entryDate, emoji: "😀")
-            entries.append(entry)
-        }
-
-        let timeline = Timeline(entries: entries, policy: .atEnd)
-        completion(timeline)
-    }
-
-//    func relevances() async -> WidgetRelevances<Void> {
-//        // Generate a list containing the contexts this widget is relevant in.
-//    }
 }
 
-struct SimpleEntry: TimelineEntry {
+// MARK: - Entry
+
+struct LiMaJiEntry: TimelineEntry {
     let date: Date
-    let emoji: String
+    let todayTotal: Double
+    let monthTotal: Double
+    let todayRecords: [WidgetSharedRecord]
 }
 
-struct LiMaJiWidgetEntryView : View {
-    var entry: Provider.Entry
+// MARK: - Provider
+
+struct LiMaJiProvider: TimelineProvider {
+    func placeholder(in context: Context) -> LiMaJiEntry {
+        LiMaJiEntry(
+            date: Date(),
+            todayTotal: 128.5,
+            monthTotal: 2340,
+            todayRecords: [
+                WidgetSharedRecord(snapshot: "餐饮", amount: 38, time: "12:30"),
+                WidgetSharedRecord(snapshot: "交通", amount: 15, time: "09:10"),
+                WidgetSharedRecord(snapshot: "购物", amount: 75.5, time: "08:00"),
+            ]
+        )
+    }
+
+    func getSnapshot(in context: Context, completion: @escaping (LiMaJiEntry) -> Void) {
+        completion(makeEntry())
+    }
+
+    func getTimeline(in context: Context, completion: @escaping (Timeline<LiMaJiEntry>) -> Void) {
+        let entry = makeEntry()
+        let next = Calendar.current.date(byAdding: .minute, value: 15, to: Date())!
+        completion(Timeline(entries: [entry], policy: .after(next)))
+    }
+
+    private func makeEntry() -> LiMaJiEntry {
+        let data = WidgetDataStore.load()
+        return LiMaJiEntry(
+            date: Date(),
+            todayTotal: data.todayTotal,
+            monthTotal: data.monthTotal,
+            todayRecords: data.todayRecords
+        )
+    }
+}
+
+// MARK: - 小组件（2×2）
+
+struct SmallWidgetView: View {
+    let entry: LiMaJiEntry
 
     var body: some View {
-        VStack {
-            Text("Time:")
-            Text(entry.date, style: .time)
+        VStack(alignment: .leading, spacing: 0) {
+            Text("今日支出")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+            Spacer().frame(height: 4)
+            Text("¥\(entry.todayTotal.amountDisplay)")
+                .font(.system(size: 24, weight: .bold, design: .rounded))
+                .minimumScaleFactor(0.5)
+                .lineLimit(1)
+            Text("共 \(entry.todayRecords.count) 笔")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+            Spacer()
+            Link(destination: URL(string: "quickledger://add")!) {
+                Label("记一笔", systemImage: "plus.circle.fill")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(Color.accentColor)
+            }
+        }
+        .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+    }
+}
 
-            Text("Emoji:")
-            Text(entry.emoji)
+// MARK: - 中组件（4×2）
+
+struct MediumWidgetView: View {
+    let entry: LiMaJiEntry
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Text("今日支出")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Text("¥\(entry.todayTotal.amountDisplay)")
+                    .font(.system(size: 15, weight: .bold, design: .rounded))
+                    .minimumScaleFactor(0.6)
+                    .lineLimit(1)
+            }
+            .padding(.horizontal, 14)
+            .padding(.top, 12)
+            .padding(.bottom, 8)
+
+            Divider().padding(.horizontal, 14)
+
+            if entry.todayRecords.isEmpty {
+                Spacer()
+                Text("今天还没有记录")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Spacer()
+            } else {
+                VStack(spacing: 0) {
+                    ForEach(Array(entry.todayRecords.prefix(3).enumerated()), id: \.offset) { i, rec in
+                        HStack(spacing: 8) {
+                            Text(rec.time)
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                                .frame(width: 36, alignment: .leading)
+                            Text(rec.snapshot)
+                                .font(.caption)
+                                .lineLimit(1)
+                            Spacer()
+                            Text("¥\(rec.amount.amountShort)")
+                                .font(.caption.weight(.semibold))
+                        }
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 5)
+                        if i < min(entry.todayRecords.count, 3) - 1 {
+                            Divider().padding(.horizontal, 14)
+                        }
+                    }
+                }
+                Spacer()
+            }
+
+            Divider().padding(.horizontal, 14)
+
+            Link(destination: URL(string: "quickledger://add")!) {
+                HStack {
+                    Image(systemName: "plus.circle.fill")
+                    Text("记一笔")
+                    Spacer()
+                    Text("本月 ¥\(entry.monthTotal.amountDisplay)")
+                        .foregroundStyle(.secondary)
+                }
+                .font(.caption.weight(.medium))
+                .foregroundStyle(Color.accentColor)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+    }
+}
+
+// MARK: - 大组件（4×4）
+
+struct LargeWidgetView: View {
+    let entry: LiMaJiEntry
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("今日支出")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                    Text("¥\(entry.todayTotal.amountDisplay)")
+                        .font(.system(size: 22, weight: .bold, design: .rounded))
+                        .minimumScaleFactor(0.6)
+                        .lineLimit(1)
+                }
+                Spacer()
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text("本月")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                    Text("¥\(entry.monthTotal.amountDisplay)")
+                        .font(.system(size: 15, weight: .semibold, design: .rounded))
+                        .minimumScaleFactor(0.6)
+                        .lineLimit(1)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 14)
+            .padding(.bottom, 10)
+
+            Divider().padding(.horizontal, 16)
+
+            if entry.todayRecords.isEmpty {
+                Spacer()
+                Text("今天还没有记录")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                Spacer()
+            } else {
+                VStack(spacing: 0) {
+                    ForEach(Array(entry.todayRecords.prefix(7).enumerated()), id: \.offset) { i, rec in
+                        HStack(spacing: 10) {
+                            Text(rec.time)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .frame(width: 38, alignment: .leading)
+                            Text(rec.snapshot)
+                                .font(.subheadline)
+                                .lineLimit(1)
+                            Spacer()
+                            Text("¥\(rec.amount.amountShort)")
+                                .font(.subheadline.weight(.semibold))
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        if i < min(entry.todayRecords.count, 7) - 1 {
+                            Divider().padding(.horizontal, 16)
+                        }
+                    }
+                }
+                Spacer()
+            }
+
+            Divider().padding(.horizontal, 16)
+
+            Link(destination: URL(string: "quickledger://add")!) {
+                HStack {
+                    Image(systemName: "plus.circle.fill")
+                    Text("记一笔")
+                    Spacer()
+                    Text("共 \(entry.todayRecords.count) 笔")
+                        .foregroundStyle(.secondary)
+                }
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(Color.accentColor)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+    }
+}
+
+// MARK: - 锁屏圆形
+
+struct CircularWidgetView: View {
+    let entry: LiMaJiEntry
+
+    var body: some View {
+        VStack(spacing: 1) {
+            Image(systemName: "yensign.circle.fill")
+                .font(.system(size: 12))
+            Text("¥\(entry.todayTotal.amountShort)")
+                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                .minimumScaleFactor(0.5)
+                .lineLimit(1)
         }
     }
 }
+
+// MARK: - 锁屏矩形
+
+struct RectangularWidgetView: View {
+    let entry: LiMaJiEntry
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text("立马记 · 今日")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+            Text("¥\(entry.todayTotal.amountDisplay)")
+                .font(.system(size: 16, weight: .bold, design: .rounded))
+                .minimumScaleFactor(0.6)
+                .lineLimit(1)
+            Text("共 \(entry.todayRecords.count) 笔 · 本月 ¥\(entry.monthTotal.amountDisplay)")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .minimumScaleFactor(0.6)
+                .lineLimit(1)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+// MARK: - Entry View
+
+struct LiMaJiWidgetEntryView: View {
+    @Environment(\.widgetFamily) var family
+    let entry: LiMaJiEntry
+
+    var body: some View {
+        switch family {
+        case .systemSmall:          SmallWidgetView(entry: entry)
+        case .systemMedium:         MediumWidgetView(entry: entry)
+        case .systemLarge:          LargeWidgetView(entry: entry)
+        case .accessoryCircular:    CircularWidgetView(entry: entry)
+        case .accessoryRectangular: RectangularWidgetView(entry: entry)
+        default:                    SmallWidgetView(entry: entry)
+        }
+    }
+}
+
+// MARK: - Widget
 
 struct LiMaJiWidget: Widget {
     let kind: String = "LiMaJiWidget"
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: Provider()) { entry in
-            if #available(iOS 17.0, *) {
-                LiMaJiWidgetEntryView(entry: entry)
-                    .containerBackground(.fill.tertiary, for: .widget)
-            } else {
-                LiMaJiWidgetEntryView(entry: entry)
-                    .padding()
-                    .background()
-            }
+        StaticConfiguration(kind: kind, provider: LiMaJiProvider()) { entry in
+            LiMaJiWidgetEntryView(entry: entry)
+                .containerBackground(.fill.tertiary, for: .widget)
         }
-        .configurationDisplayName("My Widget")
-        .description("This is an example widget.")
+        .configurationDisplayName("立马记")
+        .description("快速查看今日支出，一键记账")
+        .supportedFamilies([
+            .systemSmall,
+            .systemMedium,
+            .systemLarge,
+            .accessoryCircular,
+            .accessoryRectangular,
+        ])
     }
-}
-
-#Preview(as: .systemSmall) {
-    LiMaJiWidget()
-} timeline: {
-    SimpleEntry(date: .now, emoji: "😀")
-    SimpleEntry(date: .now, emoji: "🤩")
 }

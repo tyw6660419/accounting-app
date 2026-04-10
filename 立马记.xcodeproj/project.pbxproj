@@ -57,7 +57,6 @@
 		D4B756172F87E94000DB8244 /* LiMaJiWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LiMaJiWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		D4B756192F87E94000DB8244 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		D4B7561B2F87E94000DB8244 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
-		D4B756322F87E9F200DB8244 /* LiMaJiWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LiMaJiWidgetExtension.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -143,7 +142,6 @@
 		D49616AE2F86376A0076F614 = {
 			isa = PBXGroup;
 			children = (
-				D4B756322F87E9F200DB8244 /* LiMaJiWidgetExtension.entitlements */,
 				D49616B92F86376A0076F614 /* 立马记 */,
 				D49616C92F86376C0076F614 /* 立马记Tests */,
 				D49616D32F86376C0076F614 /* 立马记UITests */,
